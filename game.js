@@ -96,7 +96,7 @@ function makeLevel(n) {
     groups.push({ t, type, form, count, x: 60 + rng() * (W - 120), done: false });
     t += Math.max(2.2, 5.5 - n * 0.2) * (0.7 + rng() * 0.6);
   }
-  return { n, groups, boss, bossHp: 90 + n * 22, bossAt: t + 2, total: groups.reduce((a, g) => a + g.count, 0) + (boss ? 1 : 0) };
+  return { n, groups, boss, bossHp: 80 + n * 18, bossAt: t + 2, total: groups.reduce((a, g) => a + g.count, 0) + (boss ? 1 : 0) };
 }
 
 // ---------- game state ----------
