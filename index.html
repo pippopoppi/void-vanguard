@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Void Vanguard</title>
+<meta name="description" content="A vertical space shooter for your phone or browser. Drag to fly, blast alien waves, grab power-ups, and bring down the Dreadnought boss. Free, no install.">
+<link rel="canonical" href="https://pippopoppi.github.io/void-vanguard/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Void Vanguard">
+<meta property="og:title" content="Void Vanguard — vertical space shooter">
+<meta property="og:description" content="Drag to fly, blast alien waves, grab spread shots and lasers, and bring down the Dreadnought boss. Free in your browser.">
+<meta property="og:url" content="https://pippopoppi.github.io/void-vanguard/">
+<meta property="og:image" content="https://pippopoppi.github.io/void-vanguard/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Void Vanguard — vertical space shooter">
+<meta name="twitter:description" content="Drag to fly, blast alien waves, grab spread shots and lasers, and bring down the Dreadnought boss. Free in your browser.">
+<meta name="twitter:image" content="https://pippopoppi.github.io/void-vanguard/og.png">
+<meta name="theme-color" content="#0b1026">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: #05081a; color: #f1f5f9; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; overscroll-behavior: none; }
+  body { display: flex; align-items: center; justify-content: center; height: 100dvh; touch-action: none; user-select: none; -webkit-user-select: none; }
+  #wrap { position: relative; }
+  canvas { display: block; touch-action: none; border-radius: 6px; }
+  .hidden { display: none !important; }
+
+  .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px 20px; background: rgba(5, 8, 26, 0.82); backdrop-filter: blur(3px); border-radius: 6px; text-align: center; overflow-y: auto; touch-action: pan-y; }
+  h1 { margin: 0; font-size: clamp(34px, 11vw, 54px); line-height: 1; letter-spacing: 2px; background: linear-gradient(180deg, #e0f2fe, #38bdf8 60%, #7c3aed); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h1 small { display: block; font-size: 0.32em; letter-spacing: 6px; color: #c4b5fd; -webkit-text-fill-color: #c4b5fd; margin-top: 8px; }
+  h2 { margin: 0; font-size: 38px; letter-spacing: 3px; }
+  h2.win { color: #38bdf8; } h2.lose { color: #f87171; }
+  h3 { width: 100%; text-align: left; margin: 10px 0 2px; font-size: 13px; letter-spacing: 2px; color: #94a3b8; text-transform: uppercase; }
+  p { margin: 0; color: #cbd5e1; font-size: 15px; line-height: 1.45; max-width: 320px; }
+  .coins { font-size: 20px; font-weight: 700; color: #fde047; }
+  .btn { appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 800; letter-spacing: 1px; color: #fff; padding: 15px 26px; border-radius: 16px; background: linear-gradient(180deg, #38bdf8, #0369a1); box-shadow: 0 6px 0 #0c4a6e, 0 10px 20px rgba(0,0,0,0.35); font-size: 18px; min-width: 230px; transition: transform .08s, box-shadow .08s; }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #0c4a6e; }
+  .btn.alt { background: linear-gradient(180deg, #475569, #334155); box-shadow: 0 6px 0 #1e293b, 0 10px 20px rgba(0,0,0,0.35); font-size: 15px; padding: 12px 20px; }
+  .btn.alt:active { box-shadow: 0 2px 0 #1e293b; }
+  .btn.x { background: linear-gradient(180deg, #111827, #000); box-shadow: 0 6px 0 #1f2937, 0 10px 20px rgba(0,0,0,0.35); text-decoration: none; display: inline-block; }
+  .btn.x:active { box-shadow: 0 2px 0 #1f2937; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .row .btn { min-width: 0; flex: 1 1 120px; }
+  .link { background: none; border: 0; color: #94a3b8; font: inherit; font-size: 13px; cursor: pointer; text-decoration: underline; padding: 6px; }
+  #howto { background: rgba(255,255,255,0.06); border-radius: 14px; padding: 14px 16px; text-align: left; font-size: 14px; line-height: 1.5; max-width: 330px; }
+  #howto b { color: #7dd3fc; }
+  #end-stats { display: flex; gap: 10px; width: 100%; max-width: 340px; }
+  #end-stats div { flex: 1; background: rgba(255,255,255,0.07); border-radius: 14px; padding: 12px 6px; display: flex; flex-direction: column; }
+  #end-stats b { font-size: 22px; color: #fff; } #end-stats span { font-size: 11px; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; }
+  #shop { justify-content: flex-start; }
+  #shop-list { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 8px; }
+  .item { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.07); border-radius: 14px; padding: 10px 12px; text-align: left; }
+  .item.eq { outline: 2px solid #38bdf8; }
+  .item .shipico { width: 48px; height: 48px; flex: none; }
+  .item .info { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+  .item b { font-size: 15px; } .item em { font-style: normal; color: #fde047; font-size: 12px; margin-left: 6px; }
+  .item span { font-size: 12px; color: #94a3b8; }
+  .item button { appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 800; font-size: 13px; color: #fff; padding: 9px 12px; border-radius: 10px; background: #0284c7; white-space: nowrap; box-shadow: 0 3px 0 #0c4a6e; }
+  .item button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0c4a6e; }
+  .item button:disabled { background: #334155; box-shadow: 0 3px 0 #1e293b; color: #94a3b8; cursor: default; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c" width="400" height="720"></canvas>
+
+  <div id="menu" class="screen">
+    <h1>VOID<br>VANGUARD<small>DRAG · BLAST · SURVIVE</small></h1>
+    <p id="menu-best"></p>
+    <div class="coins" id="menu-coins"></div>
+    <button class="btn" id="btn-play"><span id="menu-level">LAUNCH</span></button>
+    <button class="btn alt" id="btn-shop">🛒 HANGAR</button>
+    <button class="btn alt" id="btn-howto">❓ HOW TO PLAY</button>
+    <div id="howto" class="hidden">
+      <b>Drag anywhere</b> on the screen to fly. The ship follows your finger without hiding under it. Arrow keys or WASD on desktop.<br>
+      Your cannons <b>fire by themselves</b>. Dodge red bullets and ramming ships. You have a few <b>hull points</b>; lose them all and the ship is gone.<br>
+      Enemies drop <b>power-ups</b>: <b>S</b> spread shot, <b>R</b> rapid fire, <b>L</b> piercing laser, <b>D</b> shield, <b>B</b> bomb, <b>+</b> repair.<br>
+      Chain kills for a <b>combo multiplier</b>. Every fifth level ends with the <b>Dreadnought</b>, which gets angrier as it takes damage.<br>
+      Score becomes coins. Spend them in the hangar on new ships and upgrades.
+    </div>
+    <div class="row">
+      <button class="link" id="btn-sound">🔊 Sound on</button>
+      <button class="link" id="btn-reset">Reset progress</button>
+    </div>
+  </div>
+
+  <div id="shop" class="screen hidden">
+    <h2 style="font-size:28px">HANGAR</h2>
+    <div class="coins" id="shop-coins"></div>
+    <div id="shop-list"></div>
+    <button class="btn alt" id="btn-shop-back">◀ BACK</button>
+  </div>
+
+  <div id="end" class="screen hidden">
+    <h2 id="end-title">SECTOR CLEARED</h2>
+    <p id="end-sub"></p>
+    <div id="end-stats"></div>
+    <button class="btn" id="btn-next">NEXT LEVEL ▶</button>
+    <a class="btn x" id="btn-share" href="#" target="_blank" rel="noopener">𝕏 SHARE YOUR SCORE</a>
+    <div class="row">
+      <button class="btn alt" id="btn-end-shop">🛒 HANGAR</button>
+      <button class="btn alt" id="btn-end-menu">MENU</button>
+    </div>
+  </div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>
