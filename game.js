@@ -308,7 +308,7 @@ function update(dt) {
     if (eb.dead) continue;
     eb.x += eb.vx * dt; eb.y += eb.vy * dt;
     if (eb.y > H + 10 || eb.y < -10 || eb.x < -10 || eb.x > W + 10) { eb.dead = true; continue; }
-    if (dist2(eb, s) < (eb.r + 10) ** 2) { eb.dead = true; damageShip(1); }
+    if (dist2(eb, s) < (eb.r + 7) ** 2) { eb.dead = true; damageShip(1); }
   }
   // power-ups
   for (const p of G.pups) {
