@@ -37,3 +37,7 @@ needs Pillow and writes `og.png` and `icon-180.png`.
 ## Licence
 
 MIT
+
+## World ranking
+
+The end-of-level screen shows the world top 10. The first time you are asked for a nickname (12 characters max, saved on the device); after that every finished level is sent automatically and you see your rank. The server keeps one row per nickname and replaces it only with a better single-level score, so reuse the same name to keep your record. It is the shared Worker at https://github.com/pippopoppi/ranking (`RANKING_URL` at the top of `game.js`; empty string = device-only). The menu shows the world top 5. If the server cannot be reached the game works as before.

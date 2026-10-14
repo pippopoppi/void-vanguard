@@ -64,6 +64,24 @@
   .item button { appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 800; font-size: 13px; color: #fff; padding: 9px 12px; border-radius: 10px; background: #0284c7; white-space: nowrap; box-shadow: 0 3px 0 #0c4a6e; }
   .item button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0c4a6e; }
   .item button:disabled { background: #334155; box-shadow: 0 3px 0 #1e293b; color: #94a3b8; cursor: default; }
+  /* world ranking */
+  [hidden] { display: none !important; }
+  .world { width: 100%; max-width: 340px; background: rgba(255,255,255,0.07); border-radius: 14px; padding: 10px 14px 8px; text-align: left; }
+  .world-title { font-size: 11px; letter-spacing: 2px; color: #94a3b8; text-transform: uppercase; text-align: center; margin-bottom: 6px; }
+  .world-name { display: flex; gap: 8px; margin: 4px 0 8px; }
+  .world-name input { flex: 1 1 auto; min-width: 0; font: inherit; font-weight: 800; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; text-align: center; padding: 9px 10px; border: 2px solid #334155; border-radius: 10px; background: #0f172a; color: #fff; outline: none; -webkit-user-select: text; user-select: text; }
+  .world-name input:focus { border-color: #a78bfa; }
+  .world-name button { font: inherit; font-weight: 800; letter-spacing: 1px; padding: 9px 14px; border: 0; border-radius: 10px; background: #7c3aed; color: #fff; cursor: pointer; }
+  .world-me { text-align: center; font-weight: 800; color: #c4b5fd; font-size: 14px; margin: 2px 0 6px; }
+  .world-list { list-style: none; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
+  .world-list li { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-top: 1px solid rgba(255,255,255,0.08); font-size: 14px; }
+  .world-list li:first-child { border-top: 0; }
+  .world-list .pos { width: 22px; color: #94a3b8; font-weight: 800; text-align: right; }
+  .world-list .nm { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 1px; font-weight: 700; }
+  .world-list .sc { font-weight: 900; color: #fff; }
+  .world-list li.me { color: #c4b5fd; }
+  .world-list .empty { color: #94a3b8; font-size: 13px; padding: 4px 0; display: block; }
+  #end-world .link { display: block; margin: 2px auto 0; }
 </style>
 </head>
 <body>
@@ -74,6 +92,7 @@
     <h1>VOID<br>VANGUARD<small>DRAG · BLAST · SURVIVE</small></h1>
     <p id="menu-best"></p>
     <p id="visits" style="margin:0;font-size:12px;opacity:.7" hidden></p>
+    <div id="menu-world" class="world" hidden><div class="world-title">WORLD TOP 5</div><ol id="menu-world-list" class="world-list"></ol></div>
     <div class="coins" id="menu-coins"></div>
     <button class="btn" id="btn-play"><span id="menu-level">LAUNCH</span></button>
     <button class="btn alt" id="btn-shop">🛒 HANGAR</button>
@@ -102,6 +121,16 @@
     <h2 id="end-title">SECTOR CLEARED</h2>
     <p id="end-sub"></p>
     <div id="end-stats"></div>
+    <div id="end-world" class="world" hidden>
+      <div class="world-title">WORLD RANKING</div>
+      <div id="world-name" class="world-name" hidden>
+        <input id="nick" maxlength="12" placeholder="YOUR NAME" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done" aria-label="Your name">
+        <button id="btn-nick" type="button">SAVE</button>
+      </div>
+      <div id="world-me" class="world-me" hidden></div>
+      <ol id="end-world-list" class="world-list"></ol>
+      <button class="link" id="btn-nick-change" type="button" hidden>change name</button>
+    </div>
     <button class="btn" id="btn-next">NEXT LEVEL ▶</button>
     <a class="btn x" id="btn-share" href="#" target="_blank" rel="noopener">𝕏 SHARE YOUR SCORE</a>
     <div class="row">

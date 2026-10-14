@@ -5,6 +5,8 @@
 // ---------- constants & balance ----------
 const W = 400, H = 720;
 const SAVE_KEY = 'voidvanguard.v1';
+// World ranking server (github.com/pippopoppi/ranking). Empty string = device-only.
+const RANKING_URL = 'https://ranking.pippopoppi.workers.dev/void-vanguard';
 const SITE_URL = (location.origin + location.pathname).replace(/index\.html$/, '');
 const TAU = 6.2832;
 
@@ -354,6 +356,7 @@ function endLevel(win) {
   beep(win ? 660 : 110, 0.6, win ? 'triangle' : 'sawtooth', 0.07);
   if (win) setTimeout(() => beep(990, 0.6, 'triangle', 0.07), 150);
   showEnd(win);
+  Ranking.onEnd({ score: G.score, level: L.n, kills: G.kills, time: Math.round(G.t) });
 }
 
 // ---------- rendering ----------
@@ -576,6 +579,7 @@ function showMenu() {
   $('menu-best').textContent = save.hiscore > 0 ? 'High score ' + fmt(save.hiscore) + '  ·  ' + fmt(save.kills) + ' enemies destroyed' : 'Drag anywhere to fly. Your ship fires by itself.';
   $('btn-sound').textContent = save.sound ? '🔊 Sound on' : '🔇 Sound off';
   showScreen('menu');
+  Ranking.loadMenu();
 }
 function showEnd(win) {
   $('end-title').textContent = win ? 'SECTOR CLEARED' : 'SHIP LOST';
@@ -650,8 +654,64 @@ function frame(now) {
 }
 document.addEventListener('visibilitychange', () => { last = performance.now(); });
 
+// ---------- world ranking ----------
+// One row per nickname on the server; the best single-level score counts.
+const Ranking = (function () {
+  const NICK_KEY = 'voidvanguard.nick';
+  let nick = '';
+  try { nick = localStorage.getItem(NICK_KEY) || ''; } catch (e) { /* storage blocked */ }
+  let lastRun = null;
+  const enabled = () => !!RANKING_URL && typeof fetch === 'function';
+  const clean = v => String(v || '').replace(/[^\p{L}\p{N} _.\-!?*]/gu, '').replace(/\s+/g, ' ').trim().slice(0, 12).toUpperCase();
+  function fill(list, top, n) {
+    list.innerHTML = '';
+    const rows = (top || []).slice(0, n);
+    if (!rows.length) { list.innerHTML = '<li><span class="empty">Be the first on the board!</span></li>'; return; }
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i], li = document.createElement('li');
+      if (nick && r.name === clean(nick)) li.className = 'me';
+      li.innerHTML = '<span class="pos">' + (i + 1) + '.</span><span class="nm"></span><span class="sc"></span>';
+      li.querySelector('.nm').textContent = r.name; li.querySelector('.sc').textContent = fmt(r.score);
+      list.appendChild(li);
+    }
+  }
+  function renderMenu(top) { const box = $('menu-world'); if (!top || !top.length) { box.hidden = true; return; } fill($('menu-world-list'), top, 5); box.hidden = false; }
+  function nameForm(show) { $('world-name').hidden = !show; $('btn-nick-change').hidden = show || !nick; if (show) $('nick').value = nick; }
+  async function fetchTop(n) { try { const r = await fetch(RANKING_URL + '?top=' + n, { cache: 'no-store' }); return r.ok ? ((await r.json()).top || []) : null; } catch (e) { return null; } }
+  async function send() {
+    if (!lastRun || !nick) return;
+    const me = $('world-me'); me.hidden = false; me.textContent = 'Sending…';
+    try {
+      const r = await fetch(RANKING_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(Object.assign({ name: nick }, lastRun)) });
+      if (r.status === 400) { me.textContent = 'Score not accepted'; const t = await fetchTop(10); if (t) fill($('end-world-list'), t, 10); return; }
+      if (!r.ok) throw new Error(String(r.status));
+      const j = await r.json();
+      me.textContent = j.rank ? clean(nick) + ': #' + j.rank + ' in the world' + (j.improved ? '' : ' (best ' + fmt(j.best) + ')') : clean(nick) + ': not ranked yet';
+      fill($('end-world-list'), j.top || [], 10); renderMenu(j.top || []);
+    } catch (e) { me.textContent = 'Ranking offline, try again later'; }
+  }
+  $('btn-nick').addEventListener('click', () => {
+    const v = clean($('nick').value); if (!v) { $('nick').focus(); return; }
+    nick = v; try { localStorage.setItem(NICK_KEY, nick); } catch (e) { /* ignore */ }
+    nameForm(false); $('nick').blur(); send();
+  });
+  $('nick').addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); $('btn-nick').click(); } });
+  $('nick').addEventListener('keyup', e => e.stopPropagation());
+  $('btn-nick-change').addEventListener('click', () => { nameForm(true); $('nick').focus(); });
+  return {
+    async loadMenu() { if (!enabled()) return; const t = await fetchTop(5); if (t) renderMenu(t); },
+    async onEnd(run) {
+      if (!enabled()) { $('end-world').hidden = true; return; }
+      $('end-world').hidden = false; $('world-me').hidden = true;
+      lastRun = run && run.score > 0 ? run : null;
+      nameForm(!nick);
+      if (nick && lastRun) send(); else { const t = await fetchTop(10); if (t) fill($('end-world-list'), t, 10); }
+    }
+  };
+})();
+
 showMenu();
 requestAnimationFrame(frame);
 
-window.VoidVanguard = { G, save, startLevel, update, draw, makeLevel, SHIPS, ENEMIES, POWERUPS, UPGRADES, get level() { return L; } };
+window.VoidVanguard = { G, save, startLevel, endLevel, update, draw, makeLevel, keys, Ranking, SHIPS, ENEMIES, POWERUPS, UPGRADES, get level() { return L; } };
 })();
